@@ -46,17 +46,25 @@ drawArcBy3Points (x1 :+ y1) (xc :+ yc) (x4 :+ y4) = do
             let y3 = yc + by - k2*bx
             plotOneBezier (Bezier ((x1:+y1), (x2:+y2), (x3:+y3), (x4:+y4)))
 
+a ^+ b = Radian (toRadian a + toRadian b)
+a ^- b = Radian (toRadian a - toRadian b)
+a ^* b = Radian (toRadian a * b)
+a ^/ b = Radian (toRadian a / b)
+angCos = cos . toRadian
+angSin = sin . toRadian
+angTan = tan . toRadian
+
 bezierControlPointsForCenteredCircle :: Double -> Angle -> (Point, Point)
 bezierControlPointsForCenteredCircle r arcAngle = ((x2 :+ y2), (x3 :+ y3))
     where
-      a = toRadian arcAngle / 2
+      a = arcAngle ^/ 2
 -- This one is suggestedby internet, but it is less pleasant for my eye    let k = 0.5522847498
       k = 0.6522847498
-      x4 = r * cos(a)
-      y4 = r * sin (a)
+      x4 = r * angCos a
+      y4 = r * angSin a
       x1 = x4
       y1 = -y4
-      f = k * (tan a)
+      f = k * angTan a
       x2 = x1 + f * y4
       y2 = y1 + f * x4
       x3 = x2
