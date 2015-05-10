@@ -1,17 +1,44 @@
 module Jeometry
     (
-      Point(..)
-    , Shape(..)
+      Point
+    , Arc(..)
+    , normalizeArc
+    , toDegree
+    , (^+)
+    , (^-)
+    , (^*)
+    , (^/)
+    , (^<)
+    , (^>)
+    , angCos
+    , angSin
+    , angTan
     ) where
 
-data Point = Point {getX :: Int, getY :: Int}
+import Data.Complex
+import Graphics.PDF.Coordinates (Point, Angle (..), toRadian)
+import Data.Fixed
 
-data Shape = Line {getLineStart :: Point, getLineEnd :: Point}
-			| Arc {getArcCenter :: Point, getArcRadius :: Int, getArcStart :: Int, getArcEnd :: Int}
+data Arc = Arc {arcCenter :: Point, arcRadius :: Double, arcStart :: Angle, arcEnd :: Angle}
 
-(#-) :: Int -> Int -> Point
-(#-) x y = Point x y
+toDegree :: Angle -> Double
+toDegree (Degree x) = x
+toDegree (Radian x) = (x / pi) * 180
 
+normalizeAngle :: Angle -> Angle
+normalizeAngle (Degree deg) = Degree (mod' deg 360.0)
+normalizeAngle (Radian rad) = Radian (mod' rad (2 * pi))
 
+normalizeArc :: Arc -> Arc
+normalizeArc (Arc center radius start end) = Arc center radius (normalizeAngle start) (normalizeAngle end)
 
+a ^+ b = Radian (toRadian a + toRadian b)
+a ^- b = Radian (toRadian a - toRadian b)
+a ^* b = Radian (toRadian a * b)
+a ^/ b = Radian (toRadian a / b)
+a ^< b = (toRadian a) < (toRadian b)
+a ^> b = (toRadian a) > (toRadian b)
+angCos = cos . toRadian
+angSin = sin . toRadian
+angTan = tan . toRadian
 
