@@ -21,12 +21,6 @@ plotOneBezier (Bezier p1 p2 p3 p4) = do
                 addBezierCubic p2 p3 p4
                 strokePath
 
-plotBeziers :: [Bezier] -> Draw ()
-plotBeziers [] = return ()
-plotBeziers (x:xs) = do 
-                plotOneBezier x
-                plotBeziers xs
-
 bezierControlPointsForCenteredCircle :: Double -> Angle -> (PdfPoint, PdfPoint)
 bezierControlPointsForCenteredCircle r arcAngle = ((x2 :+ y2), (x3 :+ y3))
   where
@@ -43,8 +37,13 @@ bezierControlPointsForCenteredCircle r arcAngle = ((x2 :+ y2), (x3 :+ y3))
     x3 = x2
     y3 = -y2
 
-drawArcByCenterRadiusAndAngles :: PdfPoint -> Angle -> Angle -> Double -> Draw ()
-drawArcByCenterRadiusAndAngles (xc :+ yc) startAngle endAngle r = do
+plotSmallArc :: J.Arc -> Draw ()
+plotSmallArc arc = do
+    let startAngle = arcStart arc
+    let endAngle = arcEnd arc
+    let r = arcRadius arc
+    let (xc :+ yc) = arcCenter arc
+
     let ((x2 :+ y2), (x3 :+ y3)) = bezierControlPointsForCenteredCircle r (endAngle ^- startAngle)
     let a = (endAngle ^- startAngle) ^/ 2
 
@@ -62,29 +61,10 @@ drawArcByCenterRadiusAndAngles (xc :+ yc) startAngle endAngle r = do
     let yf4 = yc + r * angSin endAngle
     plotOneBezier (Bezier (xf1:+yf1) (xf2:+yf2) (xf3:+yf3) (xf4:+yf4))
 
-plotSamplePage :: Draw ()
-plotSamplePage = do  
-               strokeColor blue
-               setWidth 1
-               drawArcByCenterRadiusAndAngles (100 :+ 100) (Degree 0) (Degree 30) 70
-               --strokeColor green
-               drawArcByCenterRadiusAndAngles (100 :+ 100) (Degree 30) (Degree 60) 70
-               --strokeColor red
-               drawArcByCenterRadiusAndAngles (100 :+ 100) (Degree 60) (Degree 90) 70
-               --strokeColor black
-               drawArcByCenterRadiusAndAngles (100 :+ 100) (Degree 90) (Degree 120) 70
-               drawArcByCenterRadiusAndAngles (100 :+ 100) (Degree 120) (Degree 150) 70
-               drawArcByCenterRadiusAndAngles (100 :+ 100) (Degree 150) (Degree 180) 70
-               drawArcByCenterRadiusAndAngles (100 :+ 100) (Degree 180) (Degree 210) 70
-               drawArcByCenterRadiusAndAngles (100 :+ 100) (Degree 210) (Degree 240) 70
-               drawArcByCenterRadiusAndAngles (100 :+ 100) (Degree 240) (Degree 270) 70
-               drawArcByCenterRadiusAndAngles (100 :+ 100) (Degree 270) (Degree 300) 70
-               drawArcByCenterRadiusAndAngles (100 :+ 100) (Degree 300) (Degree 330) 70
-               drawArcByCenterRadiusAndAngles (100 :+ 100) (Degree 330) (Degree 360) 70
 
 createPageContent :: PDFReference PDFPage -> PDF ()
 createPageContent page = do
-	drawWithPage page plotSamplePage 
+	drawWithPage page plotSampleArc 
 
 plotSampleDocument :: IO ()
 plotSampleDocument = do
@@ -92,15 +72,46 @@ plotSampleDocument = do
     runPdf "demo.pdf" (standardDocInfo { author=toPDFString "littorio", compressed = False}) rect $ do
         myDocument
 
+
+-- Takes an angle and breaks it into a series of angles not larger than limit
 quantifyAngles :: Angle -> Angle -> [Angle]
 quantifyAngles toQuantify = quantifyAngles' [toQuantify] []
+    where
+        quantifyAngles' (y:ys) x limit = 
+            if y ^> limit
+              then quantifyAngles' (y^/2 : y^/2 : ys) x limit
+              else quantifyAngles' ys (x ++ [y]) limit
+        quantifyAngles' [] result _  = result
 
-quantifyAngles' :: [Angle] -> [Angle] -> Angle -> [Angle]
-quantifyAngles' (y:ys) x limit = 
-    if y ^> limit
-      then quantifyAngles' (y^/2 : y^/2 : ys) x limit
-      else quantifyAngles' ys (x ++ [y]) limit
-quantifyAngles' [] result _  = result
+--turns one Arc into a list of Arcs with size not larger than limit
+quantifyArc :: J.Arc -> Angle -> [J.Arc]
+quantifyArc arc limitAngle = foldl quantifyArc' [] angles where
+    startingAngle = arcStart arc
+    angles = quantifyAngles ((arcEnd arc) ^- (arcStart arc)) limitAngle
+    quantifyArc' prevArcs toAdd 
+        | length prevArcs == 0 = [J.Arc (arcCenter arc) (arcRadius arc) startingAngle (startingAngle ^+ toAdd)]
+        | otherwise = prevArcs ++ [J.Arc (arcCenter arc) (arcRadius arc) (arcEnd prevArc) (arcEnd prevArc ^+ toAdd)]
+        where
+            prevArc = last prevArcs
+
+sampleArc = J.Arc (100 :+ 100) 70 (Degree 10) (Degree 300)
+
+
+plotArc :: J.Arc -> Draw ()
+plotArc arc = mapM_ plotSmallArc (quantifyArc arc quantAngle)
+    where quantAngle = (Degree 10)
+
+
+plotSampleArc :: Draw ()
+plotSampleArc = do
+    strokeColor blue
+    setWidth 1
+    plotArc sampleArc
+
+dumpArc :: J.Arc -> IO ()
+dumpArc arc = do
+  print $ "Arc: [Center: " ++ show (arcCenter arc) ++ "][Radius: " ++ show (arcRadius arc) ++ "][Start: " ++ show (toDegree (arcStart arc)) ++ "][End: " ++ show (toDegree (arcEnd arc)) ++ "]"
+
 
 main :: IO()
 main = plotSampleDocument

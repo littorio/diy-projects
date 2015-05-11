@@ -32,6 +32,9 @@ normalizeAngle (Radian rad) = Radian (mod' rad (2 * pi))
 normalizeArc :: Arc -> Arc
 normalizeArc (Arc center radius start end) = Arc center radius (normalizeAngle start) (normalizeAngle end)
 
+arcSize :: Arc -> Angle
+arcSize arc = (arcEnd arc) ^- (arcStart arc)
+
 a ^+ b = Radian (toRadian a + toRadian b)
 a ^- b = Radian (toRadian a - toRadian b)
 a ^* b = Radian (toRadian a * b)
