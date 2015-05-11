@@ -1,7 +1,7 @@
 import Graphics.PDF
 import Control.Monad
 
-import Jeometry as J
+import Jeometry
 
 type PdfPoint = Graphics.PDF.Point
 
@@ -37,12 +37,12 @@ bezierControlPointsForCenteredCircle r arcAngle = ((x2 :+ y2), (x3 :+ y3))
     x3 = x2
     y3 = -y2
 
-plotSmallArc :: J.Arc -> Draw ()
+plotSmallArc :: CArc -> Draw ()
 plotSmallArc arc = do
-    let startAngle = arcStart arc
-    let endAngle = arcEnd arc
-    let r = arcRadius arc
-    let (xc :+ yc) = arcCenter arc
+    let startAngle = cArcStart arc
+    let endAngle = cArcEnd arc
+    let r = cArcRadius arc
+    let (xc :+ yc) = cArcCenter arc
 
     let ((x2 :+ y2), (x3 :+ y3)) = bezierControlPointsForCenteredCircle r (endAngle ^- startAngle)
     let a = (endAngle ^- startAngle) ^/ 2
@@ -84,20 +84,20 @@ quantifyAngles toQuantify = quantifyAngles' [toQuantify] []
         quantifyAngles' [] result _  = result
 
 --turns one Arc into a list of Arcs with size not larger than limit
-quantifyArc :: J.Arc -> Angle -> [J.Arc]
+quantifyArc :: CArc -> Angle -> [CArc]
 quantifyArc arc limitAngle = foldl quantifyArc' [] angles where
-    startingAngle = arcStart arc
-    angles = quantifyAngles ((arcEnd arc) ^- (arcStart arc)) limitAngle
+    startingAngle = cArcStart arc
+    angles = quantifyAngles ((cArcEnd arc) ^- (cArcStart arc)) limitAngle
     quantifyArc' prevArcs toAdd 
-        | length prevArcs == 0 = [J.Arc (arcCenter arc) (arcRadius arc) startingAngle (startingAngle ^+ toAdd)]
-        | otherwise = prevArcs ++ [J.Arc (arcCenter arc) (arcRadius arc) (arcEnd prevArc) (arcEnd prevArc ^+ toAdd)]
+        | length prevArcs == 0 = [CArc (cArcCenter arc) (cArcRadius arc) startingAngle (startingAngle ^+ toAdd)]
+        | otherwise = prevArcs ++ [CArc (cArcCenter arc) (cArcRadius arc) (cArcEnd prevArc) (cArcEnd prevArc ^+ toAdd)]
         where
             prevArc = last prevArcs
 
-sampleArc = J.Arc (100 :+ 100) 70 (Degree 10) (Degree 300)
+sampleArc = CArc (100 :+ 100) 70 (Degree 10) (Degree 300)
 
 
-plotArc :: J.Arc -> Draw ()
+plotArc :: CArc -> Draw ()
 plotArc arc = mapM_ plotSmallArc (quantifyArc arc quantAngle)
     where quantAngle = (Degree 10)
 
@@ -108,9 +108,9 @@ plotSampleArc = do
     setWidth 1
     plotArc sampleArc
 
-dumpArc :: J.Arc -> IO ()
+dumpArc :: CArc -> IO ()
 dumpArc arc = do
-  print $ "Arc: [Center: " ++ show (arcCenter arc) ++ "][Radius: " ++ show (arcRadius arc) ++ "][Start: " ++ show (toDegree (arcStart arc)) ++ "][End: " ++ show (toDegree (arcEnd arc)) ++ "]"
+  print $ "Arc: [Center: " ++ show (cArcCenter arc) ++ "][Radius: " ++ show (cArcRadius arc) ++ "][Start: " ++ show (toDegree (cArcStart arc)) ++ "][End: " ++ show (toDegree (cArcEnd arc)) ++ "]"
 
 
 main :: IO()

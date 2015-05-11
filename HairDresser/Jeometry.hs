@@ -1,7 +1,7 @@
 module Jeometry
     (
       Point
-    , Arc(..)
+    , CArc(..)
     , normalizeArc
     , toDegree
     , (^+)
@@ -19,7 +19,7 @@ import Data.Complex
 import Graphics.PDF.Coordinates (Point, Angle (..), toRadian)
 import Data.Fixed
 
-data Arc = Arc {arcCenter :: Point, arcRadius :: Double, arcStart :: Angle, arcEnd :: Angle}
+data CArc = CArc {cArcCenter :: Point, cArcRadius :: Double, cArcStart :: Angle, cArcEnd :: Angle}
 
 toDegree :: Angle -> Double
 toDegree (Degree x) = x
@@ -29,11 +29,11 @@ normalizeAngle :: Angle -> Angle
 normalizeAngle (Degree deg) = Degree (mod' deg 360.0)
 normalizeAngle (Radian rad) = Radian (mod' rad (2 * pi))
 
-normalizeArc :: Arc -> Arc
-normalizeArc (Arc center radius start end) = Arc center radius (normalizeAngle start) (normalizeAngle end)
+normalizeArc :: CArc -> CArc
+normalizeArc (CArc center radius start end) = CArc center radius (normalizeAngle start) (normalizeAngle end)
 
-arcSize :: Arc -> Angle
-arcSize arc = (arcEnd arc) ^- (arcStart arc)
+arcSize :: CArc -> Angle
+arcSize arc = (cArcEnd arc) ^- (cArcStart arc)
 
 a ^+ b = Radian (toRadian a + toRadian b)
 a ^- b = Radian (toRadian a - toRadian b)
