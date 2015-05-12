@@ -4,6 +4,8 @@ module Jeometry
     , CArc(..)
     , normalizeArc
     , toDegree
+    , arcSize
+    , angleRatio
     , (^+)
     , (^-)
     , (^*)
@@ -24,6 +26,9 @@ data CArc = CArc {cArcCenter :: Point, cArcRadius :: Double, cArcStart :: Angle,
 toDegree :: Angle -> Double
 toDegree (Degree x) = x
 toDegree (Radian x) = (x / pi) * 180
+
+angleRatio :: Angle -> Angle -> Double
+angleRatio a b = (toDegree a) / (toDegree b)
 
 normalizeAngle :: Angle -> Angle
 normalizeAngle (Degree deg) = Degree (mod' deg 360.0)

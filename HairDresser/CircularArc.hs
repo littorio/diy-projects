@@ -58,30 +58,26 @@ plotSmallArc arc = do
     let yf4 = yc + r * angSin endAngle
     plotOneBezier (Bezier (xf1:+yf1) (xf2:+yf2) (xf3:+yf3) (xf4:+yf4))
 
--- Takes an angle and breaks it into a series of angles not larger than limit
-quantifyAngles :: Angle -> Angle -> [Angle]
-quantifyAngles toQuantify = quantifyAngles' [toQuantify] []
+splitAngle :: Angle -> Angle -> (Angle, Double)
+splitAngle src limit = (divisor, count)
     where
-        quantifyAngles' (y:ys) x limit = 
-            if y ^> limit
-              then quantifyAngles' (y^/2 : y^/2 : ys) x limit
-              else quantifyAngles' ys (x ++ [y]) limit
-        quantifyAngles' [] result _  = result
+        count = fromIntegral (ceiling (angleRatio src limit))
+        divisor = src ^/ count
 
---turns one Arc into a list of Arcs with size not larger than limit
-quantifyArc :: CArc -> Angle -> [CArc]
-quantifyArc arc limitAngle = foldl quantifyArc' [] angles where
-    startingAngle = cArcStart arc
-    angles = quantifyAngles ((cArcEnd arc) ^- (cArcStart arc)) limitAngle
-    quantifyArc' prevArcs toAdd 
-        | length prevArcs == 0 = [CArc (cArcCenter arc) (cArcRadius arc) startingAngle (startingAngle ^+ toAdd)]
-        | otherwise = prevArcs ++ [CArc (cArcCenter arc) (cArcRadius arc) (cArcEnd prevArc) (cArcEnd prevArc ^+ toAdd)]
-        where
-            prevArc = last prevArcs
+splitArc :: CArc -> Angle -> [CArc]
+splitArc arc limit = splitArc' smallAngle count
+    where
+        (smallAngle, count) = splitAngle (arcSize arc) limit
+        splitArc' smallAngle count 
+            | count == 0 = []
+            | otherwise = [CArc (cArcCenter arc) (cArcRadius arc) startAngle endAngle] ++ splitArc' smallAngle (count-1)
+                where
+                    startAngle = (cArcStart arc) ^+ (smallAngle ^* (count - 1))
+                    endAngle = (cArcStart arc) ^+ (smallAngle ^* count)
 
 plotArc :: CArc -> Draw ()
-plotArc arc = mapM_ plotSmallArc (quantifyArc arc quantAngle)
-    where quantAngle = (Degree 10)
+plotArc arc = mapM_ plotSmallArc (splitArc arc splitAngle)
+    where splitAngle = (Degree 10)
 
 dumpArc :: CArc -> IO ()
 dumpArc arc = do
