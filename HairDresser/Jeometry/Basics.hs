@@ -1,4 +1,4 @@
-module Jeometry
+module Jeometry.Basics
     (
       Point
     , CArc(..)

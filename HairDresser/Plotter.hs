@@ -1,8 +1,8 @@
 import Graphics.PDF
 import Control.Monad
 
-import Jeometry
-import CircularArc
+import Jeometry.Basics
+import Jeometry.CircularArc
 
 type PdfPoint = Graphics.PDF.Point
 

@@ -1,4 +1,4 @@
-module CircularArc
+module Jeometry.CircularArc
     (
       plotArc
     ) where
@@ -6,7 +6,7 @@ module CircularArc
 import Graphics.PDF
 import Control.Monad
 
-import Jeometry
+import Jeometry.Basics
 
 type PdfPoint = Graphics.PDF.Point
 
