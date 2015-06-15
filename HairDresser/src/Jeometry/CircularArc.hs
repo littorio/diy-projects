@@ -64,6 +64,7 @@ splitAngle src limit = (divisor, count)
         count = fromIntegral (ceiling (angleRatio src limit))
         divisor = src ^/ count
 
+-- splits arc into a list of arcs of given angle
 splitArc :: CArc -> Angle -> [CArc]
 splitArc arc limit = splitArc' smallAngle count
     where
