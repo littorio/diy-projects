@@ -3,6 +3,7 @@ import Control.Monad
 
 import Jeometry.Basics
 import Jeometry.CircularArc
+import Jeometry.Plotters
 
 type PdfPoint = Graphics.PDF.Point
 

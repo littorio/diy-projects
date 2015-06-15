@@ -1,6 +1,8 @@
 module Jeometry.Basics
     (
       Point
+    , PdfPoint
+    , Bezier (..)
     , CArc(..)
     , normalizeArc
     , toDegree
@@ -18,8 +20,14 @@ module Jeometry.Basics
     ) where
 
 import Data.Complex
-import Graphics.PDF.Coordinates (Point, Angle (..), toRadian)
 import Data.Fixed
+
+import Graphics.PDF
+import Graphics.PDF.Coordinates (Point, Angle (..), toRadian)
+
+type PdfPoint = Graphics.PDF.Point
+
+data Bezier = Bezier PdfPoint PdfPoint PdfPoint PdfPoint
 
 data CArc = CArc {cArcCenter :: Point, cArcRadius :: Double, cArcStart :: Angle, cArcEnd :: Angle}
 
