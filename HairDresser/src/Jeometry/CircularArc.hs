@@ -3,12 +3,12 @@ module Jeometry.CircularArc
       splitAngle
     , splitArc
     , dumpArc
+    , bezierControlPointsForCenteredCircle
     ) where
 
-import Graphics.PDF
 import Control.Monad
-
 import Jeometry.Basics
+import Data.Complex
 
 splitAngle :: Angle -> Angle -> (Angle, Double)
 splitAngle src limit = (divisor, count)
@@ -27,6 +27,23 @@ splitArc arc limit = splitArc' smallAngle count
                 where
                     startAngle = (cArcStart arc) ^+ (smallAngle ^* (count - 1))
                     endAngle = (cArcStart arc) ^+ (smallAngle ^* count)
+
+bezierControlPointsForCenteredCircle :: Double -> Angle -> (Point, Point)
+bezierControlPointsForCenteredCircle r arcAngle = ((x2 :+ y2), (x3 :+ y3))
+  where
+    a = arcAngle ^/ 2
+-- This one is suggestedby internet, but it is less pleasant for my eye    let k = 0.5522847498
+    k = 0.6522847498
+    x4 = r * angCos a
+    y4 = r * angSin a
+    x1 = x4
+    y1 = -y4
+    f = k * angTan a
+    x2 = x1 + f * y4
+    y2 = y1 + f * x4
+    x3 = x2
+    y3 = -y2
+
 
 dumpArc :: CArc -> IO ()
 dumpArc arc = do

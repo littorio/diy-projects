@@ -4,35 +4,20 @@ module Jeometry.Plotters
     , plotOneBezier
     ) where
 
-import Graphics.PDF
+import qualified Graphics.PDF as PDF
 import Control.Monad
 
 import Jeometry.Basics
 import Jeometry.CircularArc
+import Data.Complex
 
-plotOneBezier :: Bezier -> Draw ()
+plotOneBezier :: Bezier -> PDF.Draw ()
 plotOneBezier (Bezier p1 p2 p3 p4) = do
-                beginPath p1
-                addBezierCubic p2 p3 p4
-                strokePath
+                PDF.beginPath p1
+                PDF.addBezierCubic p2 p3 p4
+                PDF.strokePath
 
-bezierControlPointsForCenteredCircle :: Double -> Angle -> (PdfPoint, PdfPoint)
-bezierControlPointsForCenteredCircle r arcAngle = ((x2 :+ y2), (x3 :+ y3))
-  where
-    a = arcAngle ^/ 2
--- This one is suggestedby internet, but it is less pleasant for my eye    let k = 0.5522847498
-    k = 0.6522847498
-    x4 = r * angCos a
-    y4 = r * angSin a
-    x1 = x4
-    y1 = -y4
-    f = k * angTan a
-    x2 = x1 + f * y4
-    y2 = y1 + f * x4
-    x3 = x2
-    y3 = -y2
-
-plotSmallArc :: CArc -> Draw ()
+plotSmallArc :: CArc -> PDF.Draw ()
 plotSmallArc arc = do
     let startAngle = cArcStart arc
     let endAngle = cArcEnd arc
@@ -56,7 +41,7 @@ plotSmallArc arc = do
     let yf4 = yc + r * angSin endAngle
     plotOneBezier (Bezier (xf1:+yf1) (xf2:+yf2) (xf3:+yf3) (xf4:+yf4))
 
-plotArc :: CArc -> Draw ()
+plotArc :: CArc -> PDF.Draw ()
 plotArc arc = mapM_ plotSmallArc (splitArc arc splitAngle)
     where splitAngle = (Degree 10)
 

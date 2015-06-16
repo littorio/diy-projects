@@ -1,9 +1,7 @@
 import Graphics.PDF
 import Control.Monad
 
-import Jeometry.Basics
-import Jeometry.CircularArc
-import Jeometry.Plotters
+import qualified Jeometry as J
 
 type PdfPoint = Graphics.PDF.Point
 
@@ -25,13 +23,13 @@ plotSampleDocument = do
     runPdf "demo.pdf" (standardDocInfo { author=toPDFString "littorio", compressed = False}) rect $ do
         myDocument
 
-sampleArc = CArc (100 :+ 100) 70 (Degree 10) (Degree 300)
+sampleArc = J.CArc (100 :+ 100) 70 (J.Degree 10) (J.Degree 300)
 
 plotSampleArc :: Draw ()
 plotSampleArc = do
     strokeColor blue
     setWidth 1
-    plotArc sampleArc
+    J.plotArc sampleArc
 
 main :: IO()
 main = plotSampleDocument

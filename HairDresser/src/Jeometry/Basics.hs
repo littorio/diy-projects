@@ -1,7 +1,9 @@
+{-# LANGUAGE FlexibleInstances #-}
+
 module Jeometry.Basics
     (
       Point
-    , PdfPoint
+    , Angle (..)
     , Bezier (..)
     , CArc(..)
     , normalizeArc
@@ -18,23 +20,28 @@ module Jeometry.Basics
     , angCos
     , angSin
     , angTan
-    , distBetween2Points
+    , Shape (..)
     ) where
 
 import Data.Complex
 import Data.Fixed
 
-import Graphics.PDF
+type Point = Complex Double
 
-type PdfPoint = Graphics.PDF.Point
-
-data Bezier = Bezier PdfPoint PdfPoint PdfPoint PdfPoint
+data Bezier = Bezier Point Point Point Point
 
 data CArc = CArc {cArcCenter :: Point, cArcRadius :: Double, cArcStart :: Angle, cArcEnd :: Angle}
 
 (===) :: Double -> Double -> Bool
 0.0 === 0.0 = True
 a   === b   = 0.0005 > (abs ((a - b) / a))
+
+data Angle = Degree !Double -- ^ Angle in degrees
+           | Radian !Double -- ^ Angle in radians
+
+toRadian :: Angle -> Double
+toRadian (Degree x) = (pi / 180) * x
+toRadian (Radian x) = x
 
 toDegree :: Angle -> Double
 toDegree (Degree x) = x
@@ -59,10 +66,10 @@ a ^+ b = Radian (toRadian a + toRadian b)
 (^-) :: Angle -> Angle -> Angle
 a ^- b = Radian (toRadian a - toRadian b)
 
-(^*) :: Angle -> PDFFloat -> Angle
+(^*) :: Angle -> Double -> Angle
 a ^* b = Radian (toRadian a * b)
 
-(^/) :: Angle -> PDFFloat -> Angle
+(^/) :: Angle -> Double -> Angle
 a ^/ b = Radian (toRadian a / b)
 
 (^<) :: Angle -> Angle -> Bool
@@ -71,15 +78,17 @@ a ^< b = (toRadian a) < (toRadian b)
 (^>) :: Angle -> Angle -> Bool
 a ^> b = (toRadian a) > (toRadian b)
 
-angCos :: Angle -> PDFFloat
+angCos :: Angle -> Double
 angCos = cos . toRadian
 
-angSin :: Angle -> PDFFloat
+angSin :: Angle -> Double
 angSin = sin . toRadian
 
-angTan :: Angle -> PDFFloat
+angTan :: Angle -> Double
 angTan = tan . toRadian
 
-distBetween2Points :: PdfPoint -> PdfPoint -> Double
-distBetween2Points (x1 :+ y1) (x2 :+ y2) = sqrt (((x1 - x2) ** 2) + ((y1 - y2) ** 2))
+class Shape a where
+    distToPoint :: a -> Point -> Double
 
+instance Shape Point where
+    distToPoint (x1 :+ y1) (x2 :+ y2) = sqrt (((x1 - x2) ** 2) + ((y1 - y2) ** 2))
