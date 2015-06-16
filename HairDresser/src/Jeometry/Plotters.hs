@@ -9,12 +9,14 @@ import Control.Monad
 
 import Jeometry.Basics
 import Jeometry.CircularArc
-import Data.Complex
+
+toPdfPoint :: Point -> PDF.Point
+toPdfPoint (x :+ y) = (x PDF.:+ y)
 
 plotOneBezier :: Bezier -> PDF.Draw ()
 plotOneBezier (Bezier p1 p2 p3 p4) = do
-                PDF.beginPath p1
-                PDF.addBezierCubic p2 p3 p4
+                PDF.beginPath (toPdfPoint p1)
+                PDF.addBezierCubic (toPdfPoint p2) (toPdfPoint p3) (toPdfPoint p4)
                 PDF.strokePath
 
 plotSmallArc :: CArc -> PDF.Draw ()

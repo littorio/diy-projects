@@ -1,8 +1,6 @@
-{-# LANGUAGE FlexibleInstances #-}
-
 module Jeometry.Basics
     (
-      Point
+      Point (..)
     , Angle (..)
     , Bezier (..)
     , CArc(..)
@@ -23,10 +21,9 @@ module Jeometry.Basics
     , Shape (..)
     ) where
 
-import Data.Complex
 import Data.Fixed
 
-type Point = Complex Double
+data Point = Double :+ Double deriving (Show, Eq)
 
 data Bezier = Bezier Point Point Point Point
 

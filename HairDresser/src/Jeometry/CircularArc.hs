@@ -8,7 +8,6 @@ module Jeometry.CircularArc
 
 import Control.Monad
 import Jeometry.Basics
-import Data.Complex
 
 splitAngle :: Angle -> Angle -> (Angle, Double)
 splitAngle src limit = (divisor, count)

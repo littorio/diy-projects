@@ -3,12 +3,19 @@ module Main where
 import Test.Framework as TF (defaultMain, testGroup, Test)
 import Test.Framework.Providers.QuickCheck2 (testProperty)
 import Test.QuickCheck.Property
+import Test.QuickCheck.Arbitrary
+import Test.QuickCheck.Modifiers
 
 import Jeometry.Basics
-import Data.Complex
 
 main :: IO ()
 main = defaultMain tests
+
+instance Arbitrary Point where
+   arbitrary = do
+     Positive x <- arbitrary
+     Positive y <- arbitrary
+     return (x :+ y)
 
 prop_PointDistanceCommutativity :: Point -> Point -> Bool
 prop_PointDistanceCommutativity p1 p2 = distToPoint p1 p2 == distToPoint p2 p1
