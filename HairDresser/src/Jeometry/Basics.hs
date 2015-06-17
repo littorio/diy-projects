@@ -18,7 +18,6 @@ module Jeometry.Basics
     , angCos
     , angSin
     , angTan
-    , Shape (..)
     ) where
 
 import Data.Fixed
@@ -83,9 +82,3 @@ angSin = sin . toRadian
 
 angTan :: Angle -> Double
 angTan = tan . toRadian
-
-class Shape a where
-    distToPoint :: a -> Point -> Double
-
-instance Shape Point where
-    distToPoint (x1 :+ y1) (x2 :+ y2) = sqrt (((x1 - x2) ** 2) + ((y1 - y2) ** 2))

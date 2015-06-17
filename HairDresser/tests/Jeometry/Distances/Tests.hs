@@ -1,9 +1,6 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module Jeometry.Basics.Tests
-  (
-  	fullRun
-  ) where
+module Jeometry.Distances.Tests (fullRun) where
 
 import Test.Framework as TF (testGroup, Test)
 import Test.Framework.Providers.QuickCheck2 (testProperty)
@@ -12,6 +9,7 @@ import Test.QuickCheck.Arbitrary
 import Test.QuickCheck.Modifiers
 
 import Jeometry.Basics
+import Jeometry.Distances
 
 instance Arbitrary Point where
   arbitrary = do
