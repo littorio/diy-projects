@@ -23,13 +23,16 @@ plotSampleDocument = do
     runPdf "demo.pdf" (standardDocInfo { author=toPDFString "littorio", compressed = False}) rect $ do
         myDocument
 
-sampleArc = J.CArc (100 J.:+ 100) 70 (J.Degree 10) (J.Degree 300)
+sampleArc1 = J.CArc (100 J.:+ 100) 70 (J.Degree 0) (J.Degree 90)
+sampleArc2 = J.CArc (100 J.:+ 100) 120 (J.Degree 0) (J.Degree 120)
 
 plotSampleArc :: Draw ()
 plotSampleArc = do
     strokeColor blue
     setWidth 1
-    J.plotArc sampleArc
+    J.plotArc sampleArc1
+    strokeColor red
+    J.plotArc sampleArc2
 
 main :: IO()
 main = plotSampleDocument

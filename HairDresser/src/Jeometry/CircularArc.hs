@@ -6,7 +6,6 @@ module Jeometry.CircularArc
     , bezierControlPointsForCenteredCircle
     ) where
 
-import Control.Monad
 import Jeometry.Basics
 
 splitAngle :: Angle -> Angle -> (Angle, Double)
@@ -20,12 +19,12 @@ splitArc :: CArc -> Angle -> [CArc]
 splitArc arc limit = splitArc' smallAngle count
     where
         (smallAngle, count) = splitAngle (arcSize arc) limit
-        splitArc' smallAngle count 
+        splitArc' angle numOfAngles 
             | count == 0 = []
-            | otherwise = [CArc (cArcCenter arc) (cArcRadius arc) startAngle endAngle] ++ splitArc' smallAngle (count-1)
+            | otherwise = [CArc (cArcCenter arc) (cArcRadius arc) startAngle endAngle] ++ splitArc' angle (numOfAngles-1)
                 where
-                    startAngle = (cArcStart arc) ^+ (smallAngle ^* (count - 1))
-                    endAngle = (cArcStart arc) ^+ (smallAngle ^* count)
+                    startAngle = (cArcStart arc) ^+ (angle ^* (numOfAngles - 1))
+                    endAngle = (cArcStart arc) ^+ (angle ^* numOfAngles)
 
 bezierControlPointsForCenteredCircle :: Double -> Angle -> (Point, Point)
 bezierControlPointsForCenteredCircle r arcAngle = ((x2 :+ y2), (x3 :+ y3))
@@ -43,7 +42,20 @@ bezierControlPointsForCenteredCircle r arcAngle = ((x2 :+ y2), (x3 :+ y3))
     x3 = x2
     y3 = -y2
 
+cArcPointAtAngle :: CArc -> Angle -> Point
+cArcPointAtAngle arc angle = ((centerX + radius * (angCos angle)) :+ (centerY + radius * (angSin angle))) where
+  centerX = (pointX (cArcCenter arc))
+  centerY = (pointY (cArcCenter arc))
+  radius = (cArcRadius arc)
+
+--cArcFirstPoint :: CArc -> Point
+--cArcFirstPoint (CArc center radius startAngle endAngle) = ((pointX center) + radius * (angCos startAngle) :+ (pointY center) + radius * (angSin startAngle))
+
+--cArcLastPoint :: CArc -> Point
+--cArcLastPoint (CArc center radius startAngle endAngle) = ((pointX center) + radius * (angCos endAngle) :+ 
+                                                          --(pointY center) + radius * (angSin endAngle))
 
 dumpArc :: CArc -> IO ()
 dumpArc arc = do
   print $ "Arc: [Center: " ++ show (cArcCenter arc) ++ "][Radius: " ++ show (cArcRadius arc) ++ "][Start: " ++ show (toDegree (cArcStart arc)) ++ "][End: " ++ show (toDegree (cArcEnd arc)) ++ "]"
+
