@@ -8,7 +8,7 @@ import qualified Graphics.PDF as PDF
 import Control.Monad
 
 import Jeometry.Basics
-import Jeometry.CircularArc
+import Jeometry.Shapes
 
 toPdfPoint :: Point -> PDF.Point
 toPdfPoint (x :+ y) = (x PDF.:+ y)

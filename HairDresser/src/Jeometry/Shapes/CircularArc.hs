@@ -1,30 +1,49 @@
-module Jeometry.CircularArc
+module Jeometry.Shapes.CircularArc
     (
-      splitAngle
+      CArc (..)
+    , cArcCenter
+    , cArcStart
+    , cArcEnd
+    , splitAngle
     , splitArc
     , dumpArc
     , bezierControlPointsForCenteredCircle
     ) where
 
-import Jeometry.Basics
+import Jeometry.Shapes.Primitives
+import Jeometry.Shapes.PlanarAngle
+
+data CArc = CArc {cArcPAngle :: PlanarAngle, cArcRadius :: Double}
+
+cArcCenter :: CArc -> Point
+cArcCenter (CArc pAngle _) = pAngleCenter pAngle
+
+cArcStart :: CArc -> Angle
+cArcStart (CArc pAngle _) = pAngleStart pAngle
+
+cArcEnd :: CArc -> Angle
+cArcEnd (CArc pAngle _) = pAngleEnd pAngle
+
+arcSize :: CArc -> Angle
+arcSize arc = (cArcEnd arc) ^- (cArcStart arc)
 
 splitAngle :: Angle -> Angle -> (Angle, Double)
-splitAngle src limit = (divisor, count)
-    where
-        count = fromIntegral (ceiling (angleRatio src limit))
-        divisor = src ^/ count
+splitAngle src limit = (divisor, count) where
+  count = fromIntegral (ceiling (angleRatio src limit) :: Int)
+  divisor = src ^/ count
 
 -- splits arc into a list of arcs of given angle
 splitArc :: CArc -> Angle -> [CArc]
-splitArc arc limit = splitArc' smallAngle count
+splitArc arc limit = splitArc' smallAngle arcsCount
     where
-        (smallAngle, count) = splitAngle (arcSize arc) limit
-        splitArc' angle numOfAngles 
+        (smallAngle, arcsCount) = splitAngle (arcSize arc) limit
+        splitArc' angle count 
             | count == 0 = []
-            | otherwise = [CArc (cArcCenter arc) (cArcRadius arc) startAngle endAngle] ++ splitArc' angle (numOfAngles-1)
+            | otherwise = [CArc newPAngle (cArcRadius arc)] ++ splitArc' angle (count-1)
                 where
-                    startAngle = (cArcStart arc) ^+ (angle ^* (numOfAngles - 1))
-                    endAngle = (cArcStart arc) ^+ (angle ^* numOfAngles)
+                    startAngle = (cArcStart arc) ^+ (angle ^* (count - 1))
+                    endAngle = (cArcStart arc) ^+ (angle ^* count)
+                    newPAngle =  (PlanarAngle (cArcCenter arc) startAngle endAngle)
 
 bezierControlPointsForCenteredCircle :: Double -> Angle -> (Point, Point)
 bezierControlPointsForCenteredCircle r arcAngle = ((x2 :+ y2), (x3 :+ y3))

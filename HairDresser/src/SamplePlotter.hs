@@ -23,8 +23,8 @@ plotSampleDocument = do
     runPdf "demo.pdf" (standardDocInfo { author=toPDFString "littorio", compressed = False}) rect $ do
         myDocument
 
-sampleArc1 = J.CArc (100 J.:+ 100) 70 (J.Degree 0) (J.Degree 90)
-sampleArc2 = J.CArc (100 J.:+ 100) 120 (J.Degree 0) (J.Degree 120)
+sampleArc1 = J.CArc (J.PlanarAngle (100 J.:+ 100) (J.Degree 0) (J.Degree 90)) 70
+sampleArc2 = J.CArc (J.PlanarAngle (100 J.:+ 100) (J.Degree 0) (J.Degree 120)) 120
 
 plotSampleArc :: Draw ()
 plotSampleArc = do
