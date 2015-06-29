@@ -4,6 +4,8 @@ module Jeometry.Shapes.Vector
     , vectorFrom2Points
     , normalizeVector
     , dotProductOf2Vectors
+    , pointByOffset
+    , invertVector
     ) where
 
 import Jeometry.Shapes.Primitives
@@ -17,8 +19,13 @@ normalizeVector :: Vector -> Vector
 normalizeVector (x :- y) = ((x / vectorLength) :- (y / vectorLength))
   where vectorLength = sqrt $ (x ** 2) + (y ** 2)
 
+invertVector :: Vector -> Vector
+invertVector (x :- y) = ((0-x) :- (0-y))
+
 dotProductOf2Vectors :: Vector -> Vector -> Double
 dotProductOf2Vectors (x1 :- y1) (x2 :- y2) = x1 * x2 + y1 * y2
 
+pointByOffset :: Point -> Vector -> Point
+pointByOffset (x :+ y) (offX :- offY) = ((x + offX) :+ (y + offY))
 
 
